@@ -1,12 +1,48 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [Password, setPassword] = useState("");
-  const collectData =()=>{
-    console.log(name,email,Password)
-  }
+  const navigate = useNavigate();
+
+  useEffect(()=>{
+    const auth= localStorage.getItem("user")
+    if(auth)
+    {
+      navigate()
+    }
+  })
+
+  const collectData = async () => {
+    console.log(name, email, Password);
+
+    try {
+      let result = await fetch("http://localhost:5000/register", {
+        method: "POST",
+        body: JSON.stringify({ name, email, Password }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!result.ok) {
+        throw new Error(`HTTP error! Status: ${result.status}`);
+      }
+
+      result = await result.json();
+      console.log(result);
+      localStorage.setItem("user", JSON.stringify(result));
+
+      if (result) {
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Error in collectData:", error);
+    }
+  };
+
 
   return (
     <div className="register">
